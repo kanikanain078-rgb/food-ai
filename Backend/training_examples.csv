@@ -1,0 +1,9 @@
+product_id,category,diet,priority,added_sugar_g,fiber_g,protein_g,sodium_mg,saturated_fat_g,vegetarian,vegan,expert_label
+1,biscuits,vegetarian,added_sugar,8,7,9,180,3,true,true,4
+2,biscuits,vegetarian,added_sugar,18,2,5,250,8,true,false,2
+3,biscuits,vegetarian,added_sugar,6,8,8,160,2,true,true,5
+4,biscuits,vegetarian,added_sugar,24,2,4,290,9,true,false,1
+1,biscuits,vegetarian,fiber,8,7,9,180,3,true,true,4
+2,biscuits,vegetarian,fiber,18,2,5,250,8,true,false,2
+3,biscuits,vegetarian,fiber,6,8,8,160,2,true,true,5
+4,biscuits,vegetarian,fiber,24,2,4,290,9,true,false,1

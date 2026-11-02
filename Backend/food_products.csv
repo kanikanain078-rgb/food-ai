@@ -1,0 +1,5 @@
+product_id,product_name,brand,category,vegetarian,vegan,added_sugar_g,fiber_g,protein_g,sodium_mg,saturated_fat_g,ingredients,allergens,allergen_info_known
+1,Oat Biscuits,Demo A,biscuits,true,true,8,7,9,180,3,"Oats, wheat flour, vegetable oil, sugar","wheat;gluten",true
+2,Butter Biscuits,Demo B,biscuits,true,false,18,2,5,250,8,"Wheat flour, sugar, butter, milk","wheat;gluten;milk",true
+3,Ragi Biscuits,Demo C,biscuits,true,true,6,8,8,160,2,"Ragi flour, wheat flour, oats, vegetable oil","wheat;gluten",true
+4,Chocolate Biscuits,Demo D,biscuits,true,false,24,2,4,290,9,"Wheat flour, sugar, cocoa, milk powder, soy lecithin","wheat;gluten;milk;soy",true

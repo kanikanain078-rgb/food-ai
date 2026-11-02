@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoodSage AI | Smart Food Recommendations</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="logo">FoodSage <span>AI</span></div>
+    <p>Your personal food recommendation assistant</p>
+  </header>
+
+  <main class="container">
+
+    <section class="intro">
+      <h1>Find food that fits your preferences.</h1>
+      <p>
+        Compare products, filter ingredients and discover the
+        options that best match your preferences.
+      </p>
+    </section>
+
+    <section class="preferences card">
+      <h2>Your preferences</h2>
+
+      <div class="form-grid">
+
+        <div class="field">
+          <label for="category">Product category</label>
+          <select id="category">
+            <option value="biscuits" selected>Biscuits</option>
+            <option value="snacks">Chips & Snacks</option>
+            <option value="cereals">Breakfast Cereals</option>
+            <option value="noodles">Instant Noodles</option>
+            <option value="beverages">Beverages</option>
+            <option value="chocolates">Chocolates</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="diet">Dietary preference</label>
+          <select id="diet">
+            <option value="none">No restriction</option>
+            <option value="vegetarian" selected>Vegetarian</option>
+            <option value="vegan">Vegan</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="priority">Main nutritional priority</label>
+          <select id="priority">
+            <option value="added_sugar" selected>Lower added sugar</option>
+            <option value="fiber">Higher fibre</option>
+            <option value="protein">Higher protein</option>
+            <option value="sodium">Lower sodium</option>
+            <option value="saturated_fat">Lower saturated fat</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="allergies">Allergies / ingredients to avoid</label>
+          <input
+            type="text"
+            id="allergies"
+            placeholder="Example: peanuts, milk, soy"
+          >
+          <small>Separate multiple ingredients with commas.</small>
+        </div>
+
+      </div>
+
+      <button id="recommendBtn" class="primary-btn">
+        Find my best food options
+      </button>
+    </section>
+
+    <section id="resultsSection" class="results-section">
+
+      <div class="results-heading">
+        <h2>Your recommendations</h2>
+        <p id="resultSummary">Choose your preferences to get started.</p>
+      </div>
+
+      <div id="results"></div>
+
+    </section>
+
+    <p class="disclaimer">
+      Demo notice: Product information below is fictional sample data.
+      Always verify ingredients and allergen information on the actual
+      product label. FoodSage AI provides informational comparisons,
+      not medical advice or a guarantee of allergen safety.
+    </p>
+
+  </main>
+
+  <footer>
+    <p>FoodSage AI © 2026</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
