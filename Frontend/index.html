@@ -1,107 +1,208 @@
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FoodSage AI | Smart Food Recommendations</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FoodSage AI - Smart Food Recommendations</title>
+
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-  <header class="header">
-    <div class="logo">FoodSage <span>AI</span></div>
-    <p>Your personal food recommendation assistant</p>
-  </header>
+    <header class="header">
+        <h1>🥗 FoodSage AI</h1>
+        <p>Your Smart Packaged Food Recommendation Assistant</p>
+    </header>
 
-  <main class="container">
+    <main class="container">
 
-    <section class="intro">
-      <h1>Find food that fits your preferences.</h1>
-      <p>
-        Compare products, filter ingredients and discover the
-        options that best match your preferences.
-      </p>
-    </section>
+        <!-- INTRODUCTION -->
+        <section class="intro">
+            <h2>Eat Smarter. Choose Better.</h2>
+            <p>
+                Discover packaged food recommendations based on your
+                dietary preferences and nutrition priorities.
+            </p>
+        </section>
 
-    <section class="preferences card">
-      <h2>Your preferences</h2>
 
-      <div class="form-grid">
+        <!-- PERSONALIZED FOOD RECOMMENDATIONS -->
+        <section class="panel">
 
-        <div class="field">
-          <label for="category">Product category</label>
-          <select id="category">
-            <option value="biscuits" selected>Biscuits</option>
-            <option value="snacks">Chips & Snacks</option>
-            <option value="cereals">Breakfast Cereals</option>
-            <option value="noodles">Instant Noodles</option>
-            <option value="beverages">Beverages</option>
-            <option value="chocolates">Chocolates</option>
-          </select>
-        </div>
+            <h2>Personalised Food Recommendations</h2>
 
-        <div class="field">
-          <label for="diet">Dietary preference</label>
-          <select id="diet">
-            <option value="none">No restriction</option>
-            <option value="vegetarian" selected>Vegetarian</option>
-            <option value="vegan">Vegan</option>
-          </select>
-        </div>
+            <p>
+                Choose your preferences to discover suitable products.
+            </p>
 
-        <div class="field">
-          <label for="priority">Main nutritional priority</label>
-          <select id="priority">
-            <option value="added_sugar" selected>Lower added sugar</option>
-            <option value="fiber">Higher fibre</option>
-            <option value="protein">Higher protein</option>
-            <option value="sodium">Lower sodium</option>
-            <option value="saturated_fat">Lower saturated fat</option>
-          </select>
-        </div>
+            <form id="recommendForm">
 
-        <div class="field">
-          <label for="allergies">Allergies / ingredients to avoid</label>
-          <input
-            type="text"
-            id="allergies"
-            placeholder="Example: peanuts, milk, soy"
-          >
-          <small>Separate multiple ingredients with commas.</small>
-        </div>
+                <label for="category">Food Category</label>
 
-      </div>
+                <select id="category" required>
+                    <option value="">Select category</option>
+                    <option value="biscuits">Biscuits</option>
+                </select>
 
-      <button id="recommendBtn" class="primary-btn">
-        Find my best food options
-      </button>
-    </section>
 
-    <section id="resultsSection" class="results-section">
+                <label for="diet">Dietary Preference</label>
 
-      <div class="results-heading">
-        <h2>Your recommendations</h2>
-        <p id="resultSummary">Choose your preferences to get started.</p>
-      </div>
+                <select id="diet">
+                    <option value="none">No preference</option>
+                    <option value="vegetarian">Vegetarian</option>
+                    <option value="vegan">Vegan</option>
+                </select>
 
-      <div id="results"></div>
 
-    </section>
+                <label for="priority">Nutrition Priority</label>
 
-    <p class="disclaimer">
-      Demo notice: Product information below is fictional sample data.
-      Always verify ingredients and allergen information on the actual
-      product label. FoodSage AI provides informational comparisons,
-      not medical advice or a guarantee of allergen safety.
-    </p>
+                <select id="priority" required>
+                    <option value="added_sugar">Less Added Sugar</option>
+                    <option value="fiber">More Fibre</option>
+                    <option value="protein">More Protein</option>
+                    <option value="sodium">Less Sodium</option>
+                    <option value="saturated_fat">Less Saturated Fat</option>
+                </select>
 
-  </main>
 
-  <footer>
-    <p>FoodSage AI © 2026</p>
-  </footer>
+                <label for="allergies">
+                    Allergies (comma separated)
+                </label>
 
-  <script src="script.js"></script>
+                <input
+                    type="text"
+                    id="allergies"
+                    placeholder="Example: milk, wheat, soy"
+                >
+
+
+                <button type="button" id="recommendBtn">
+                    Get Recommendations
+                </button>
+
+            </form>
+
+            <div id="resultSummary"></div>
+
+            <div id="results" class="results-grid"></div>
+
+        </section>
+
+
+        <!-- HEALTHIER ALTERNATIVES -->
+        <section class="panel alternative-panel">
+
+            <h2>🌿 Find a Healthier Alternative</h2>
+
+            <p>
+                Select a packaged biscuit and find another biscuit
+                with a better value for your selected nutrient.
+            </p>
+
+            <form id="alternativeForm">
+
+                <label for="baseProduct">
+                    Select Your Current Product
+                </label>
+
+                <select id="baseProduct" required>
+
+                    <option value="">Choose a product</option>
+
+                    <option value="1">Oat Biscuits</option>
+                    <option value="2">Butter Biscuits</option>
+                    <option value="3">Ragi Biscuits</option>
+                    <option value="4">Chocolate Biscuits</option>
+
+                    <option value="B001">Parle-G Original</option>
+                    <option value="B002">Britannia Marie Gold</option>
+                    <option value="B003">Britannia Bourbon</option>
+                    <option value="B004">Oreo Vanilla Cream</option>
+                    <option value="B005">Parle Hide and Seek</option>
+                    <option value="B006">Britannia Good Day</option>
+                    <option value="B007">Sunfeast Dark Fantasy</option>
+
+                </select>
+
+
+                <label for="alternativePriority">
+                    What would you like to compare?
+                </label>
+
+                <select id="alternativePriority" required>
+
+                    <option value="added_sugar_g">
+                        Less Added Sugar
+                    </option>
+
+                    <option value="fiber_g">
+                        More Fibre
+                    </option>
+
+                    <option value="protein_g">
+                        More Protein
+                    </option>
+
+                    <option value="sodium_mg">
+                        Less Sodium
+                    </option>
+
+                    <option value="saturated_fat_g">
+                        Less Saturated Fat
+                    </option>
+
+                </select>
+
+
+                <button type="button" id="alternativeBtn">
+                    Find Alternatives
+                </button>
+
+            </form>
+
+            <div id="alternativeSummary"></div>
+
+            <div id="alternativeResults" class="results-grid"></div>
+
+            <p class="disclaimer">
+                Comparisons are based on available nutrition data per
+                100 g. A better value for one nutrient does not
+                necessarily mean the product is healthier overall.
+                Always check the actual package label.
+            </p>
+
+        </section>
+
+
+        <!-- IMPORTANT INFORMATION -->
+        <section class="notice">
+
+            <h3>Important Information</h3>
+
+            <p>
+                FoodSage AI provides informational recommendations,
+                not medical or dietary advice. Product details and
+                allergen information must be verified from the actual
+                packaging before consumption.
+            </p>
+
+        </section>
+
+    </main>
+
+
+    <!-- FOOTER -->
+    <footer>
+        <p>FoodSage AI | Student Project</p>
+    </footer>
+
+
+    <!-- JAVASCRIPT -->
+    <script src="script.js"></script>
+
 </body>
 </html>
-
