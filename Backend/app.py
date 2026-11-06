@@ -4,12 +4,13 @@ from flask_cors import CORS
 import pandas as pd
 import os
 import re
+import joblib
 
 app = Flask(__name__)
 CORS(app)
 
 # ==========================================
-# 1. LOAD REAL DATASET
+# 1. LOAD DATASET AND TRAINED ML MODEL
 # ==========================================
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -19,19 +20,27 @@ DATA_FILE = os.path.join(
     "packaged_foods_india_clean.csv"
 )
 
+MODEL_FILE = os.path.join(
+    BASE_DIR,
+    "foodsage_model.joblib"
+)
+
 products = pd.read_csv(
     DATA_FILE,
     encoding="utf-8-sig"
 )
 
-# Keep only verified records
 if "Data_Quality_Status" in products.columns:
     products = products[
         products["Data_Quality_Status"] == "Valid"
     ].copy()
 
-# Reset index so product IDs remain consistent
 products = products.reset_index(drop=True)
+
+# Load trained MLP pipeline
+ml_model = joblib.load(MODEL_FILE)
+
+print("FoodSage ML model loaded successfully!")
 
 NUTRIENTS = {
     "added_sugar": "Sugar_g",
@@ -52,7 +61,7 @@ products["Serving_Size_g"] = pd.to_numeric(
     errors="coerce"
 )
 
-print("FoodSage dataset loaded:", len(products), "products")
+print("Dataset loaded:", len(products), "products")
 
 
 # ==========================================
@@ -62,16 +71,15 @@ print("FoodSage dataset loaded:", len(products), "products")
 def clean_text(value):
     if pd.isna(value):
         return ""
-
     return str(value).strip()
 
 
 def get_priority(data):
+
     priority = str(
         data.get("priority", "added_sugar")
-    ).strip()
+    ).strip().lower()
 
-    # Support older frontend option values too
     aliases = {
         "added_sugar_g": "added_sugar",
         "fiber_g": "fiber",
@@ -89,6 +97,7 @@ def get_priority(data):
 
 
 def product_details(row, product_id):
+
     return {
         "product_id": str(product_id),
         "product_name": clean_text(row["Item name"]),
@@ -133,76 +142,92 @@ def product_details(row, product_id):
     }
 
 
-def calculate_score(row, priority):
-    """
-    Project-defined Priority Match Score.
-    This is not an official health rating.
-    """
+# ==========================================
+# 3. ML PREDICTION
+# ==========================================
 
-    column = NUTRIENTS[priority]
-    value = row[column]
+def predict_ml_score(row, priority):
 
-    if pd.isna(value):
-        return None
+    # These names and categorical values must match
+    # the features used in train_model.py.
 
-    value = float(value)
+    model_input = pd.DataFrame([{
+        "added_sugar_g": row["Sugar_g"],
+        "fiber_g": row["Dietary_Fiber_g"],
+        "protein_g": row["Proteins_g"],
+        "sodium_mg": row["Sodium_mg"],
+        "saturated_fat_g": row["Saturated_Fat_g"],
 
-    if priority == "added_sugar":
-        score = max(0, 100 - value * 2)
+        "category": clean_text(
+            row["Category"]
+        ).lower(),
 
-    elif priority == "sodium":
-        score = max(0, 100 - value / 10)
+        # Training examples used these fixed values.
+        "diet": "vegetarian",
+        "priority": priority,
+        "vegetarian": True,
+        "vegan": False
+    }])
 
-    elif priority == "saturated_fat":
-        score = max(0, 100 - value * 5)
+    prediction = float(
+        ml_model.predict(model_input)[0]
+    )
 
-    elif priority == "protein":
-        score = min(100, value * 5)
+    # Model labels were generated on a 1–5 scale.
+    prediction = max(1.0, min(5.0, prediction))
 
-    elif priority == "fiber":
-        score = min(100, value * 10)
+    # Convert the predicted 1–5 score into 0–100.
+    return round(prediction * 20, 2)
 
-    return round(score, 1)
 
+# ==========================================
+# 4. ALLERGY FILTER
+# ==========================================
 
 def allergy_conflict(row, allergies):
-    """
-    Conservative keyword check.
-    Missing ingredient information is treated as unknown.
-    """
 
     if not allergies:
         return False
 
-    ingredients = clean_text(row.get("Ingredients", ""))
+    ingredients = clean_text(
+        row.get("Ingredients", "")
+    )
 
+    # Unknown ingredients are conservatively excluded.
     if not ingredients:
         return True
 
     for allergy in allergies:
+
         if not allergy:
             continue
 
-        pattern = r"\b" + re.escape(allergy) + r"\b"
+        pattern = r"\b" + re.escape(str(allergy)) + r"\b"
 
-        if re.search(pattern, ingredients, re.IGNORECASE):
+        if re.search(
+            pattern,
+            ingredients,
+            re.IGNORECASE
+        ):
             return True
 
     return False
 
 
+# ==========================================
+# 5. DIET FILTER
+# ==========================================
+
 def diet_conflict(row, diet):
-    """
-    Basic ingredient keyword filter.
-    This is not a certified vegetarian/vegan classification.
-    """
 
     diet = str(diet).strip().lower()
 
     if diet in ["", "any", "none"]:
         return False
 
-    ingredients = clean_text(row.get("Ingredients", ""))
+    ingredients = clean_text(
+        row.get("Ingredients", "")
+    )
 
     if not ingredients:
         return True
@@ -228,29 +253,36 @@ def diet_conflict(row, diet):
         return False
 
     for word in words:
+
         pattern = r"\b" + re.escape(word) + r"\b"
 
-        if re.search(pattern, ingredients, re.IGNORECASE):
+        if re.search(
+            pattern,
+            ingredients,
+            re.IGNORECASE
+        ):
             return True
 
     return False
 
 
 # ==========================================
-# 3. HOME ROUTE
+# 6. HOME ROUTE
 # ==========================================
 
 @app.route("/", methods=["GET"])
 def home():
+
     return jsonify({
         "message": "FoodSage backend is running!",
         "dataset": "packaged_foods_india_clean.csv",
-        "products_loaded": len(products)
+        "products_loaded": len(products),
+        "ml_model_loaded": ml_model is not None
     })
 
 
 # ==========================================
-# 4. GET CATEGORIES
+# 7. GET CATEGORIES
 # ==========================================
 
 @app.route("/categories", methods=["GET"])
@@ -271,7 +303,7 @@ def get_categories():
 
 
 # ==========================================
-# 5. GET PRODUCTS FOR DROPDOWN
+# 8. GET PRODUCTS
 # ==========================================
 
 @app.route("/products", methods=["GET"])
@@ -284,6 +316,7 @@ def get_products():
     data = products.copy()
 
     if category:
+
         data = data[
             data["Category"].astype(str).str.strip().str.lower()
             == category.lower()
@@ -306,7 +339,7 @@ def get_products():
 
 
 # ==========================================
-# 6. RECOMMENDATION FEATURE
+# 9. ML-BASED RECOMMENDATIONS
 # ==========================================
 
 @app.route("/recommend", methods=["POST"])
@@ -325,16 +358,19 @@ def recommend():
     allergies = data.get("allergies", [])
 
     if not category:
+
         return jsonify({
             "error": "Please select a category."
         }), 400
 
     if priority is None:
+
         return jsonify({
             "error": "Invalid nutrient priority."
         }), 400
 
     if not isinstance(allergies, list):
+
         return jsonify({
             "error": "Allergies must be provided as a list."
         }), 400
@@ -344,8 +380,9 @@ def recommend():
         == category.lower()
     ].copy()
 
-    # Diet filter
+    # Dietary filtering
     if str(diet).lower() not in ["any", "none", ""]:
+
         filtered = filtered[
             ~filtered.apply(
                 lambda row: diet_conflict(row, diet),
@@ -353,8 +390,9 @@ def recommend():
             )
         ]
 
-    # Allergy filter
+    # Allergy filtering
     if allergies:
+
         filtered = filtered[
             ~filtered.apply(
                 lambda row: allergy_conflict(row, allergies),
@@ -364,22 +402,36 @@ def recommend():
 
     nutrient_column = NUTRIENTS[priority]
 
-    # Require selected nutrient
+    # Require the selected nutrient.
     filtered = filtered.dropna(
         subset=[nutrient_column]
     ).copy()
 
     if filtered.empty:
+
         return jsonify({
             "recommendations": [],
             "message": "No matching products found with the available data."
         })
 
-    filtered["score"] = filtered.apply(
-        lambda row: calculate_score(row, priority),
-        axis=1
-    )
+    # Generate predictions using the trained neural network.
+    try:
 
+        filtered["score"] = filtered.apply(
+            lambda row: predict_ml_score(row, priority),
+            axis=1
+        )
+
+    except Exception as error:
+
+        app.logger.exception("ML prediction failed")
+
+        return jsonify({
+            "error": "ML recommendation failed. Check the model features.",
+            "details": str(error)
+        }), 500
+
+    # Highest predicted score first.
     filtered = filtered.sort_values(
         by="score",
         ascending=False
@@ -391,23 +443,23 @@ def recommend():
 
         item = product_details(row, index)
 
-        item["score"] = row["score"]
+        item["score"] = float(row["score"])
 
         item["explanation"] = (
-            "Ranked using the selected nutrient. "
-            "This is a project-defined comparison score."
+            "Ranked using the trained FoodSage MLP model "
+            "for the selected nutritional priority."
         )
 
         recommendations.append(item)
 
     return jsonify({
         "recommendations": recommendations,
-        "message": "Recommendations generated from the real dataset."
+        "message": "ML-based recommendations generated successfully."
     })
 
 
 # ==========================================
-# 7. HEALTHIER ALTERNATIVE FEATURE
+# 10. HEALTHIER ALTERNATIVES
 # ==========================================
 
 @app.route("/alternatives", methods=["POST"])
@@ -422,11 +474,13 @@ def alternatives():
     priority = get_priority(data)
 
     if priority is None:
+
         return jsonify({
             "error": "Invalid nutrient priority."
         }), 400
 
     try:
+
         selected_index = int(product_id)
 
         if selected_index < 0 or selected_index >= len(products):
@@ -435,6 +489,7 @@ def alternatives():
         selected = products.iloc[selected_index]
 
     except (ValueError, IndexError):
+
         return jsonify({
             "error": "Selected product was not found."
         }), 404
@@ -442,12 +497,14 @@ def alternatives():
     nutrient_column = NUTRIENTS[priority]
 
     if pd.isna(selected[nutrient_column]):
+
         return jsonify({
             "alternatives": [],
             "message": "Selected product has no recorded value for this nutrient."
         })
 
     if pd.isna(selected["Serving_Size_g"]):
+
         return jsonify({
             "alternatives": [],
             "message": "Selected product has no recorded serving size."
@@ -475,12 +532,10 @@ def alternatives():
         & (products.index != selected_index)
     ].copy()
 
-    # Compare only matching recorded serving sizes.
     candidates = candidates[
         candidates["Serving_Size_g"] == selected_serving
     ].copy()
 
-    # Lower is preferred for these nutrients
     if priority in [
         "added_sugar",
         "sodium",
@@ -496,7 +551,6 @@ def alternatives():
 
         difference_label = "less"
 
-    # Higher is preferred for these nutrients
     else:
 
         candidates = candidates[
@@ -544,14 +598,15 @@ def alternatives():
 
 
 # ==========================================
-# 8. RUN SERVER
+# 11. RUN SERVER
 # ==========================================
 
 if __name__ == "__main__":
 
-    print("\n========== FOODSAGE ==========")
+    print("\n========== FOODSAGE AI ==========")
     print("Dataset:", DATA_FILE)
     print("Products loaded:", len(products))
+    print("ML model:", MODEL_FILE)
     print("Categories:", products["Category"].nunique())
     print("Backend starting...\n")
 
