@@ -1,5 +1,5 @@
 
-const API_URL = "http://127.0.0.1:5000";
+const API_URL = "https://YOUR-BACKEND-NAME.onrender.com";
 
 const recommendBtn = document.getElementById("recommendBtn");
 const results = document.getElementById("results");
