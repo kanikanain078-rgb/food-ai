@@ -1,5 +1,5 @@
 
-const API_URL = "https://YOUR-BACKEND-NAME.onrender.com";
+const API_URL = "https://foodsage-ai-backend.onrender.com";
 
 const recommendBtn = document.getElementById("recommendBtn");
 const results = document.getElementById("results");
