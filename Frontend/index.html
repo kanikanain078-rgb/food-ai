@@ -29,7 +29,6 @@
             </p>
         </section>
 
-
         <!-- PERSONALIZED FOOD RECOMMENDATIONS -->
         <section class="panel">
 
@@ -48,7 +47,6 @@
                     <option value="biscuits">Biscuits</option>
                 </select>
 
-
                 <label for="diet">Dietary Preference</label>
 
                 <select id="diet">
@@ -56,7 +54,6 @@
                     <option value="vegetarian">Vegetarian</option>
                     <option value="vegan">Vegan</option>
                 </select>
-
 
                 <label for="priority">Nutrition Priority</label>
 
@@ -68,7 +65,6 @@
                     <option value="saturated_fat">Less Saturated Fat</option>
                 </select>
 
-
                 <label for="allergies">
                     Allergies (comma separated)
                 </label>
@@ -79,6 +75,18 @@
                     placeholder="Example: milk, wheat, soy"
                 >
 
+                <!-- NEW BUDGET FILTER -->
+                <label for="maxBudget">
+                    Maximum Budget (₹)
+                </label>
+
+                <input
+                    type="number"
+                    id="maxBudget"
+                    min="0"
+                    step="0.01"
+                    placeholder="Example: 100 (optional)"
+                >
 
                 <button type="button" id="recommendBtn">
                     Get Recommendations
@@ -91,7 +99,6 @@
             <div id="results" class="results-grid"></div>
 
         </section>
-
 
         <!-- HEALTHIER ALTERNATIVES -->
         <section class="panel alternative-panel">
@@ -128,7 +135,6 @@
 
                 </select>
 
-
                 <label for="alternativePriority">
                     What would you like to compare?
                 </label>
@@ -157,6 +163,18 @@
 
                 </select>
 
+                <!-- NEW ALTERNATIVE BUDGET FILTER -->
+                <label for="alternativeMaxBudget">
+                    Maximum Budget for Alternative (₹)
+                </label>
+
+                <input
+                    type="number"
+                    id="alternativeMaxBudget"
+                    min="0"
+                    step="0.01"
+                    placeholder="Example: 100 (optional)"
+                >
 
                 <button type="button" id="alternativeBtn">
                     Find Alternatives
@@ -177,7 +195,6 @@
 
         </section>
 
-
         <!-- IMPORTANT INFORMATION -->
         <section class="notice">
 
@@ -194,12 +211,10 @@
 
     </main>
 
-
     <!-- FOOTER -->
     <footer>
         <p>FoodSage AI | Student Project</p>
     </footer>
-
 
     <!-- JAVASCRIPT -->
     <script src="script.js"></script>
